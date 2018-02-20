@@ -1,0 +1,42 @@
+version: '2.1'
+services:
+  artifactory-db:
+    image: mysql:latest
+    container_name: artifactory-db-con
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=artdb
+      - MYSQL_USER=artifactory_user
+      - MYSQL_PASSWORD=password
+    volumes: 
+      - /data/artifactory-mysql:/var/lib/mysql
+    restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000
+
+  artifactory:
+    image: pankajpandey9/artifactory_mysql_jar_5_1_45:1.0
+    container_name: artifactory-con
+    ports:
+      - 8081:8081
+    depends_on:
+      - artifactory-db
+    links:
+      - artifactory-db:artifactory-db
+    volumes:
+      - /data/artifactory/var/opt/jfrog/artifactory:/var/opt/jfrog/artifactory
+    environment:
+      - DB_TYPE=mysql
+      - DB_USER=artifactory_user
+      - DB_PASSWORD=password
+      - DB_PORT=3306
+      - DB_HOST=artifactory-db
+    restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000
